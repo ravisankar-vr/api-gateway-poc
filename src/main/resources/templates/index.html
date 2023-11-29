@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Management System</title>
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"-->
+<!--          integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"-->
+<!--          crossorigin="anonymous">-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add your custom CSS here -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script th:inline="javascript">
+        function openModal(employeeId) {
+          // Use employeeId to trigger the API call
+          // Make an AJAX call to your Leave Management API
+          // Update the modal content with the retrieved data
+
+          // Example AJAX call using jQuery
+          $.ajax({
+              url: '/leaves/' + employeeId,
+              type: 'GET',
+              success: function(data) {
+                  // Update modal content with data
+
+                  // Convert the object to a string representation
+                 //var dataString = JSON.stringify(data);
+                 // $('#modalContent').html(dataString);
+
+                  // Convert the object to a formatted JSON string
+                var formattedData = JSON.stringify(data, null, 2);
+
+                // Insert the formatted JSON string into the HTML
+                $('#modalContent').html('<pre>' + formattedData + '</pre>');
+
+                  // Show the modal
+                  $('#myModal').modal('show');
+              },
+              error: function(error) {
+                  console.error('Error fetching data:', error);
+              }
+          });
+      }
+    </script>
+</head>
+<body>
+    <div class ="container my-2">
+        <h1 align="center">Employee Management System</h1>
+        <hr>
+        <h2>Employees List</h2>
+        <a th:href="@{/v1/employees/showNewEmployeeForm}" class="btn btn-primary btn-sm mb-3">Add Employee</a>
+        <a th:href="@{'/v1/employees/createCsv'}" style="float:right;">Download CSV<!--<img th:src="@{/images/csvdownload2.jpg}" style="height:70px;width:70px;"/>--></a>
+        <table border="1" class="table table-striped table-responsive-md">
+            <thead>
+                <tr>
+                    <th>Employee Id</th>
+                    <th>Employee First Name</th>
+                    <!--<th>Employee Last Name</th>-->
+                    <th>Email</th>
+                    <th>Designation</th>
+                    <th>Salary</th>
+                    <th>Department Name</th>
+                    <th>Leave Details</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="employee : ${listemployees}">
+                    <td th:text="${employee.Id}"></td>
+                    <td th:text="${employee.firstName}"></td>
+                    <!--<td th:text="${employee.lastName}"></td>-->
+                    <td th:text="${employee.email}"></td>
+                    <td th:text="${employee.jobNm}"></td>
+                    <td th:text="${employee.salary}"></td>
+                   <!-- <td th:text="${employee.department.deptName}"></td>-->
+                    <td th:text="${employee.department.deptName} ?: '--'"></td>
+
+                    <!--<div th:text="${employee}"></div>
+                    <div th:text="${employee.leave}"></div>
+                    <div th:if="${employee.leave != null}" th:text="${employee.leave.leaveId}"></div>
+                    <div th:text="${employee.leave != null ? employee.leave.leaveId : 'N/A'}"></div>-->
+                   <!-- <td th:text="${employee.department.deptName}" th:if="${employee.department.deptName != null}"></td>-->
+                   <!--<td>  <select >
+                        <option value="0">select option</option>
+                        <option th:each="department : ${departments}"
+                                th:value="${department.departmentId}"
+                                th:text="${department.deptName}"></option>
+                    </select> </td>-->
+                    <td>
+                        <div>
+                        <!--<a th:href="@{/v1/employees/{id}(id=${employee.Id})}"
+                                class="btn btn-danger btn-sm py-1 " th:target="_blank">Leave Details</a>-->
+                        <!--<a th:href="@{'#'}" th:data-target="'#modal-' + ${employee.Id}" th:data-toggle="modal" th:text="${employee.firstName}">Leave Details</a>-->
+                        <!--<a href="#" th:attr="data-target='#myModal', data-toggle='modal', data-id=${employee.id}">Leave Details</a>-->
+                           <!-- <a href="@{/v1/leaves/{leaveId}(leaveId=${employee.leave.id})}" th:attr="data-target='#myModal', data-toggle='modal'">Leave Details</a>-->
+                            <!--<a href="#" th:onclick="'javascript:loadEmpLeaveDetails(' + ${employee.Id} + ')'" th:attr="data-target='#myModal', data-toggle='modal'">Leave Details</a>-->
+                            <a th:href="'javascript:void(0);'" th:onclick="'openModal(\'' + ${employee.leave.leaveId} + '\');'">
+                                Request Leave Details
+                            </a>
+                        </div>
+                        <!-- Modal Popup Starts-->
+                        <!--<div th:each="employee : ${listemployees}" th:id="'modal-' + ${employee.Id}" class="modal fade" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    &lt;!&ndash; Modal content goes here &ndash;&gt;
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" th:text="${employee.firstName}"></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        &lt;!&ndash; Add modal content here &ndash;&gt;
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        &lt;!&ndash; Add additional buttons if needed &ndash;&gt;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>-->
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Leave Management Data</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body" id="modalContent">
+                                        <!-- Data fetched from the API will be displayed here -->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Popup Ends-->
+                    </td>
+                    <td> <a th:href="@{/v1/employees/showFormForUpdate/{id}(id=${employee.Id})}" class="btn btn-primary">Update</a>
+                        <a th:href="@{/v1/employees/deleteEmployee/{id}(id=${employee.Id})}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div th:if="${totalPages > 1}" >
+            <div class="row col-sm-10">
+                <div class="col-sm-2">
+                    Total Rows: [[${totalItems}]]
+                </div>
+                <div class="col-sm-1">
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                        <a th:if="${currentPage != i}" th:href="@{'/v1/employees/page/' + ${i}}">[[${i}]]</a>
+                        <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp;&nbsp;
+                    </span>
+                </div>
+                <div class="col-sm-1">
+                    <a th:if="${currentPage < totalPages}" th:href="@{'/v1/employees/page/' + ${currentPage + 1}}">Next</a>
+                    <span th:unless="${currentPage < totalPages}">Next</span>
+                </div>
+                <div class="col-sm-1">
+                    <a th:if="${currentPage < totalPages}" th:href="@{'/v1/employees/page/' + ${totalPages}}">Last</a>
+                    <span th:unless="${currentPage < totalPages}">Last</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+</body>
+<footer >
+    <div align="center">Copyrights©-ems.com</div>
+
+</footer>
+</html>

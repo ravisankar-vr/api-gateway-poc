@@ -1,0 +1,52 @@
+server:
+  port: 9191
+
+spring:
+  application:
+    name: API-GATEWAY-SERVICE
+
+eureka:
+  instance:
+    client:
+      register-with-eureka: true
+      fetch-registry: true
+      serviceUrl:
+        defaultZone: http://localhost:8761/eureka/
+    hostname: localhost
+
+
+#  instance:
+#    client:
+#      serviceUrl:
+#        defaultZone: http://localhost:8761/eureka/
+  cloud:
+    gateway:
+      routes:
+        - id: employee-service
+          uri: lb://employee-service
+          predicates:
+            - Path=/v1/api/employees-list/**
+
+#        - id: leave-service
+#            uri: lb://leave-service
+#          predicates:
+#            - Path=/leave/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include=*:
+feign:
+  autoconfiguration:
+    jackson:
+      enabled: true
+
+logging:
+  file:
+    name: api-gateway-log.log
+    path: /var/log
+  level:
+    org:
+      springframework:
+        web: DEBUG
+      hibernate: ERROR
